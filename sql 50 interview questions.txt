@@ -1,0 +1,251 @@
+create database questions;
+use questions;
+create table workertable(
+workerid integer,
+fname varchar(255),
+lname varchar(255),
+salary integer,
+joindate datetime,
+department varchar(255)
+);
+
+insert into workertable(workerid,fname,lname,salary,joindate,department) values
+(1,'monika','arora',100000,'2014-02-20 09:00','hr'),
+(2,'niharika','verma',80000,'2014-06-11 09:00','admin'),
+(3,'vishal','singhal',300000,'2014-02-20 09:00','hr'),
+(4,'amit','singh',500000,'2014-02-20 09:00','hr'),
+(5,'vivek','varma',500000,'2014-02-20 09:00','hr'),
+(6,'vipual','goud',200000,'2014-02-20 09:00','hr'),
+(7,'satish','reddy',75000,'2014-02-20 09:00','hr'),
+(8,'geetika','singh',90000,'2014-02-20 09:00','hr');
+
+select * from workertable;
+
+create table bonusetable(
+workerid integer,
+bonusamount integer,
+bonusdate datetime
+);
+
+insert into bonusetable(workerid,bonusamount,bonusdate)values
+(1,5000,'2016-02-20 00:00'),
+(2,3000,'2014-02-20 00:00'),
+(3,4000,'2016-02-20 00:00'),
+(1,4500,'2016-09-25 00:00'),
+(2,3500,'2011-01-20 00:00');
+
+
+
+create table titletable(
+workerid integer,
+workertitle varchar(255),
+affectedfrom datetime
+);
+insert into titletable(workerid,workertitle,affectedfrom) values
+(1,'manager','2016-02-20 00:00'),
+(2,'executive','2011-02-20 00:00'),
+(8,'executive','2014-02-20 00:00'),
+(5,'manager','2016-05-20 00:00'),
+(4,'asst. manager','2019-02-20 00:00'),
+(7,'executive','2016-06-20 00:00');
+
+select * from titletable;
+
+
+
+-- query to fetch 'first name' from worker table using the alias name as <worker name>
+select fname as worker_name from workertable;
+
+-- fname from table as upper case
+select upper(fname) from workertable;
+
+-- unique values from department from worker table
+select department from workertable group by department;
+select distinct(department) from workertable;
+
+-- to print first three chara's of fname from worker table
+select substring(fname,1,3) from workertable;
+
+-- to print position of alphabet('t') in the fname col 'amitabh' from worker table
+select instr(fname,'t') from workertable where fname='amit';
+
+-- query to print fname from wtable after removing white space from the right side
+select rtrim(fname) from workertable;
+
+-- query to print fname from wtable after removing white space from the left side
+select ltrim(fname) from workertable;
+
+-- query to fetch the unique values of dep from worker table and print its len
+select distinct department,length(department) from workertable;
+
+-- query to print fname from worker table after replacing 'a' with 'A'
+select replace(fname,'a','A') from workertable;
+
+-- query to print fname and lname from worker table into a single col complete name 
+-- a space char should seperate them.
+select concat(fname,' ',lname) as completename from workertable;
+
+-- query fname ascending order
+select * from workertable order by fname;
+
+-- worker table order by fname ascending and dep descending
+select * from workertable order by fname, department desc;
+
+-- query to print details for worker with fname as vipula dn satish from table 
+select * from workertable where fname in ('vipual','satish');
+
+-- query to print details excluding 'vipul' and 'satish'
+select * from workertable where fname not in ('vipual','satish');
+
+-- querty to print details of workers with deparment as 'admin'
+select * from workertable where department like 'admin%';
+
+-- query to print details of workers whos fname contains 'a';
+select * from workertable where fname like '%a%';
+
+-- query to print detials of worker whos fname ends with 'a';
+select * from workertable where fname like '%a';
+
+-- query to print details of worker whose fname ends with 'h' and contians six alphabets
+select * from workertable where fname like '_____h';
+
+-- query to print details of workers whose salary lies b/w 100000 & 500000
+select * from workertable where salary between 100000 and 500000;
+
+-- query to print detials to print joined in feb 2014
+select * from workertable where year (joindate)=2014 and month(joindate)=02;
+
+-- query to fetch the count of employee working in dept admin;
+select department,count(*) from workertable where department ='admin';
+
+-- query to fetch worker fname salary >=50000 and <=100000
+select concat(fname,' ',lname) from workertable where salary between 50000 and 100000;
+
+-- query to fetch no. of workers for each dept in the desc order
+select department,count(workerid) from workertable group by department order by count(workerid) desc ;
+
+-- query to print details of the workers who are also managers; (w.*)->this prints only workertable even for joins 
+select w.* from workertable as w inner join titletable as t on w.workerid =t.workerid where t.workertitle='manager';
+
+-- query to fetch number (more than 1)  of different title in the org.
+select workertitle,count(*) from titletable group by workertitle having count(*)>1;
+
+-- query to show odd rows from a table
+select * from workertable where mod(workerid,2)!=0;
+
+-- query to show odd even from a table
+select * from workertable where mod(workerid,2)=0;
+
+-- query to clone a new table from another table
+create table worker_clone like workertable;
+insert into worker_clone select * from workertable;
+select * from worker_clone;
+
+
+-- query to fetch intersecting records of two tables
+select workertable.* from workertable inner join worker_clone using(workerid); 
+
+-- write an sql  to show records from one table that another table does not have
+select workertable.* from workertable left join worker_clone using (workerid) where worker_clone.workerid is null;
+
+
+-- query to print current date and time
+select curdate();
+select curtime();
+
+-- query to show the top n(say 5) records of a table order by desc salary;
+select * from workertable order by salary desc limit 5;
+
+-- query to determine the nth (say 5) height salary from a table
+select * from workertable order by salary desc limit 1,1;
+
+-- query to determine the nth (say 5) height salary from a table without limit key
+select salary from workertable w1
+where 4=(
+select count(distinct (w2.salary)) from workertable w2 
+where w2.salary>=w1.salary
+);
+
+-- query to fetch and the list of employees with same salary;
+select * from workertable;
+select * from workertable w1, workertable w2 where w1.salary=w2.salary and w1.workerid!=w2.workerid;
+
+-- querty to show second highest salary from a table;
+select salary from workertable w1
+where 1=(
+select count(distinct (w2.salary)) from workertable w2
+where w2.salary>w1.salary);
+-- or 
+select max(salary) from workertable
+where salary not in (select max(salary) from workertable);
+
+
+-- query to show one row twice in res frm a table
+select * from workertable
+union all 
+select * from workertable order by workerid;
+
+-- query to print details who does get bonus
+select * from workertable where workerid not in (select workerid from bonusetable);
+
+-- query to fetch frst 50% records from table
+select * from workertable where workerid<=(select count(workerid)/2 from workertable);
+
+-- query to fetch the dep that have less than 4 people in it.
+select department ,count(department) as depcnt from workertable group by department having depcnt<4;
+
+
+-- query to show depart alogn with the number of poeple in there.
+select department ,count(department) from workertable group by department;
+
+
+-- query to print last record 
+select * from workertable where workerid= (select max(workerid) from workertable);
+
+-- query to print first row of table
+select * from workertable where workerid= (select min(workerid) from workertable);
+
+-- query to last five records from a table
+(select * from workertable order by workerid desc limit 5)order by workerid;
+
+
+-- query to print name of emp having high salary in each dep
+select w.department ,w.fname ,w.salary from 
+(select max(salary) as maxsal, department from workertable group by department) temp 
+inner join workertable w on temp.department =w.department and temp.maxsal=w.salary; 
+
+
+-- query to fetch three max salaries from table using co related subquery
+select distinct salary from workertable w1
+where 3>=(select count(distinct salary) from workertable w2 where w1.salary <=w2.salary)order by w1.salary;
+-- or 
+select distinct(salary) from workertable order by salary desc limit 3;
+
+-- query to fetch three min salaries from table using co related subquery
+select distinct salary from workertable w1
+where 3>=(select count(distinct salary) from workertable w2 where w1.salary >=w2.salary)order by w1.salary;
+
+
+-- query to fecth nth max salaries from a table
+select distinct salary from workertable w1
+where n>=(select count(distinct salary) from workertable w2 where w1.salary >=w2.salary)order by w1.salary;
+
+
+-- query to fetch departments along with the total salaries paid for each other 
+select department ,sum(salary) as depsal from workertable group by department;
+
+-- query to fetch the names of workers who earns the highest salary 
+select fname ,salary from workertable where salary=(select max(salary) from workertable);
+
+
+create table pair(
+a integer,
+b integer);
+
+insert into pair(a,b) values(1,2),(2,4),(2,1),(3,2),(4,2),(5,6),(6,5),(7,8);
+select * from pair;
+select lt.* from pair lt left join pair rt on lt.a=rt.b and lt.b=rt.a
+where rt.a is null or lt.a>rt.a;
+-- or 
+select * from pair p1 where not exists 
+(select * from pair p2 where p1.a=p2.b and p1.b=p2.a and p1.a>p2.a) order by b;
